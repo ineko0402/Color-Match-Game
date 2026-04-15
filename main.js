@@ -110,18 +110,19 @@ function setupInput() {
         });
 
         zone.addEventListener("touchmove", e => {
+            e.preventDefault();
             const y = e.touches[0].clientY;
             const diff = startY - y;
             const key = zone.dataset.color;
 
             const delta = Math.floor(diff / 8);
-
+            
             if (delta !== 0) {
                 change(key, delta);
                 startY = y;
                 moved = true;
             }
-        });
+        }, { passive: false });
 
         zone.addEventListener("touchend", e => {
             if (moved) return;
