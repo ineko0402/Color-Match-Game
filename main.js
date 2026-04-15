@@ -78,7 +78,11 @@ function updateUI() {
     document.getElementById("rVal").textContent = state.r;
     document.getElementById("gVal").textContent = state.g;
     document.getElementById("bVal").textContent = state.b;
-
+    
+    document.getElementById("rFill").style.height = state.r / 255 * 100 + "%";
+    document.getElementById("gFill").style.height = state.g / 255 * 100 + "%";
+    document.getElementById("bFill").style.height = state.b / 255 * 100 + "%";
+    
     document.querySelector(".r").style.background = `rgba(${state.r},0,0,0.4)`;
     document.querySelector(".g").style.background = `rgba(0,${state.g},0,0.4)`;
     document.querySelector(".b").style.background = `rgba(0,0,${state.b},0.4)`;
