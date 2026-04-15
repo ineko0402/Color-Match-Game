@@ -7,13 +7,33 @@
 
 <body>
 
-<div id="result" class="result"></div>
+<div class="header">
+    <div id="score">Score: 0</div>
+    <div id="rank">-</div>
+</div>
+
+<div class="target" id="target"></div>
+
+<div id="resultColor" class="result"></div>
 
 <div class="controls">
-    <div class="zone r" data-color="r">R</div>
-    <div class="zone g" data-color="g">G</div>
-    <div class="zone b" data-color="b">B</div>
+    <div class="zone r" data-color="r">
+        <div>R</div>
+        <div id="rVal"></div>
+    </div>
+    <div class="zone g" data-color="g">
+        <div>G</div>
+        <div id="gVal"></div>
+    </div>
+    <div class="zone b" data-color="b">
+        <div>B</div>
+        <div id="bVal"></div>
+    </div>
 </div>
+
+<button id="check">MATCH</button>
+
+<div id="info"></div>
 
 <script src="main.js"></script>
 </body>
