@@ -10,45 +10,45 @@ const state = {
 };
 
 /**
- * ランダム色
+ * ランダム色生成
  * @returns {Color}
  */
 function generateColor() {
     return {
-        r: Math.floor(Math.random()*256),
-        g: Math.floor(Math.random()*256),
-        b: Math.floor(Math.random()*256)
+        r: Math.floor(Math.random() * 256),
+        g: Math.floor(Math.random() * 256),
+        b: Math.floor(Math.random() * 256)
     };
 }
 
 /**
- * 色差
+ * 色差計算
  * @param {Color} a
  * @param {Color} b
  * @returns {number}
  */
-function diffColor(a, b) {
+function calculateDifference(a, b) {
     const dr = a.r - b.r;
     const dg = a.g - b.g;
     const db = a.b - b.b;
-    return Math.sqrt(dr*dr + dg*dg + db*db);
+    return Math.sqrt(dr * dr + dg * dg + db * db);
 }
 
 /**
- * スコア
+ * スコア計算
  * @param {number} diff
  * @returns {number}
  */
-function calcScore(diff) {
+function calculateScore(diff) {
     return Math.max(0, Math.floor(100 - diff));
 }
 
 /**
- * ランク
+ * ランク評価
  * @param {number} diff
  * @returns {string}
  */
-function rank(diff) {
+function evaluateRank(diff) {
     if (diff <= 10) return "S";
     if (diff <= 25) return "A";
     if (diff <= 50) return "B";
@@ -57,7 +57,7 @@ function rank(diff) {
 }
 
 /**
- * CSS変換
+ * CSSカラー変換
  * @param {Color} c
  * @returns {string}
  */
@@ -67,6 +67,7 @@ function toCss(c) {
 
 /**
  * UI更新
+ * @returns {void}
  */
 function updateUI() {
     const current = { r: state.r, g: state.g, b: state.b };
@@ -78,7 +79,6 @@ function updateUI() {
     document.getElementById("gVal").textContent = state.g;
     document.getElementById("bVal").textContent = state.b;
 
-    // 背景連動
     document.querySelector(".r").style.background = `rgba(${state.r},0,0,0.4)`;
     document.querySelector(".g").style.background = `rgba(0,${state.g},0,0.4)`;
     document.querySelector(".b").style.background = `rgba(0,0,${state.b},0.4)`;
@@ -88,15 +88,17 @@ function updateUI() {
  * 値変更
  * @param {"r"|"g"|"b"} key
  * @param {number} delta
+ * @returns {void}
  */
-function change(key, delta) {
+function changeValue(key, delta) {
     const next = state[key] + delta;
     state[key] = Math.max(0, Math.min(255, next));
     updateUI();
 }
 
 /**
- * 入力設定
+ * 入力設定（スワイプ＋タップ）
+ * @returns {void}
  */
 function setupInput() {
     document.querySelectorAll(".zone").forEach(zone => {
@@ -105,68 +107,105 @@ function setupInput() {
         let moved = false;
 
         zone.addEventListener("touchstart", e => {
+            e.preventDefault();
             startY = e.touches[0].clientY;
             moved = false;
-        });
+        }, { passive: false });
 
         zone.addEventListener("touchmove", e => {
             e.preventDefault();
-            const y = e.touches[0].clientY;
-            const diff = startY - y;
+
+            const currentY = e.touches[0].clientY;
+            const diff = startY - currentY;
             const key = zone.dataset.color;
 
             const delta = Math.floor(diff / 8);
-            
+
             if (delta !== 0) {
-                change(key, delta);
-                startY = y;
+                changeValue(key, delta);
+                startY = currentY;
                 moved = true;
             }
         }, { passive: false });
 
         zone.addEventListener("touchend", e => {
-            if (moved) return;
-
-            const rect = zone.getBoundingClientRect();
-            const y = e.changedTouches[0].clientY - rect.top;
-            const key = zone.dataset.color;
-
-            if (y < rect.height / 2) {
-                change(key, 1);
+            if (moved === true) {
                 return;
             }
 
-            change(key, -1);
+            const rect = zone.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const y = touch.clientY - rect.top;
+            const half = rect.height / 2;
+
+            const key = zone.dataset.color;
+
+            if (y < half) {
+                changeValue(key, 1);
+                return;
+            }
+
+            changeValue(key, -1);
         });
 
     });
 }
 
 /**
- * 判定
+ * 判定処理
+ * @returns {void}
  */
-function check() {
+function checkResult() {
     const current = { r: state.r, g: state.g, b: state.b };
-    const diff = diffColor(state.target, current);
-    const score = calcScore(diff);
+    const diff = calculateDifference(state.target, current);
+    const score = calculateScore(diff);
+    const rank = evaluateRank(diff);
 
     document.getElementById("score").textContent = "Score: " + score;
-    document.getElementById("rank").textContent = rank(diff);
-    document.getElementById("info").textContent = "差：" + Math.floor(diff);
+    document.getElementById("rank").textContent = rank;
+    document.getElementById("info").textContent = "差: " + Math.floor(diff);
 
     state.target = generateColor();
     updateUI();
 }
 
 /**
- * 初期化
+ * ジェスチャー完全無効化
+ * @returns {void}
  */
-function init() {
+function disableGesture() {
+
+    document.addEventListener("touchmove", e => {
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener("gesturestart", e => {
+        e.preventDefault();
+    });
+
+    let lastTouchEnd = 0;
+
+    document.addEventListener("touchend", e => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+}
+
+/**
+ * 初期化
+ * @returns {void}
+ */
+function initialize() {
     state.target = generateColor();
     updateUI();
 }
 
-document.getElementById("check").addEventListener("click", check);
-
+/* 初期処理 */
+disableGesture();
 setupInput();
-init();
+initialize();
+
+document.getElementById("check").addEventListener("click", checkResult);
