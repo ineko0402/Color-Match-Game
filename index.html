@@ -1,80 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Color Match Game</title>
-
-<style>
-body {
-    font-family: sans-serif;
-    text-align: center;
-    margin: 0;
-}
-
-.container {
-    padding: 10px;
-}
-
-.color-box {
-    width: 40vw;
-    height: 40vw;
-    max-width: 150px;
-    max-height: 150px;
-    margin: 10px auto;
-    border-radius: 10px;
-    transition: transform 0.3s;
-}
-
-.success {
-    transform: scale(1.2);
-}
-
-button {
-    padding: 10px;
-    font-size: 16px;
-    width: 80%;
-    max-width: 300px;
-}
-
-.slider {
-    width: 80%;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<div class="container">
 
-<h2>Color Match</h2>
+<div id="result" class="result"></div>
 
-<select id="difficulty">
-  <option value="easy">簡単</option>
-  <option value="normal">普通</option>
-  <option value="hard">難しい</option>
-</select>
-
-<div>
-  <div>ターゲット</div>
-  <div id="target" class="color-box"></div>
+<div class="controls">
+    <div class="zone r" data-color="r">R</div>
+    <div class="zone g" data-color="g">G</div>
+    <div class="zone b" data-color="b">B</div>
 </div>
 
-<div>
-  <div>あなたの色</div>
-  <div id="current" class="color-box"></div>
-</div>
-
-<div>
-  R <input class="slider" type="range" id="r" min="0" max="255"><br>
-  G <input class="slider" type="range" id="g" min="0" max="255"><br>
-  B <input class="slider" type="range" id="b" min="0" max="255"><br>
-</div>
-
-<button id="check">判定</button>
-
-<div id="result"></div>
-
-</div>
 <script src="main.js"></script>
 </body>
 </html>
