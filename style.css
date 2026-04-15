@@ -3,26 +3,44 @@ body {
     background: #111;
     color: white;
     font-family: sans-serif;
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.target {
+    height: 80px;
 }
 
 .result {
-    height: 150px;
+    height: 120px;
 }
 
 .controls {
     display: flex;
-    height: calc(100vh - 150px);
+    height: 50vh;
 }
 
 .zone {
     flex: 1;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    font-size: 24px;
+    align-items: center;
+    font-size: 20px;
     user-select: none;
 }
 
-.r { background: rgba(255,0,0,0.2); }
-.g { background: rgba(0,255,0,0.2); }
-.b { background: rgba(0,0,255,0.2); }
+button {
+    width: 90%;
+    padding: 15px;
+    font-size: 18px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    background: orange;
+}
