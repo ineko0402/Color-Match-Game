@@ -1,42 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
 <link rel="stylesheet" href="style.css">
+<title>Color Match</title>
 </head>
 
 <body>
+<div class="app">
 
 <div class="header">
-    <div id="score">Score: 0</div>
-    <div id="rank">-</div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="rank" id="rank">-</div>
 </div>
 
-<div class="target" id="target"></div>
+<div class="card colors">
+    <div id="target" class="color-box"></div>
+    <div id="resultColor" class="color-box"></div>
+</div>
 
-<div id="resultColor" class="result"></div>
-
-<div class="controls">
+<div class="card controls">
     <div class="zone r" data-color="r">
         <div class="fill" id="rFill"></div>
-        <div>R</div>
-        <div id="rVal"></div>
+        <div class="label">
+            <span class="material-symbols-outlined">lens</span>
+            <div class="value" id="rVal"></div>
+        </div>
     </div>
+
     <div class="zone g" data-color="g">
         <div class="fill" id="gFill"></div>
-        <div>G</div>
-        <div id="gVal"></div>
+        <div class="label">
+            <span class="material-symbols-outlined">lens</span>
+            <div class="value" id="gVal"></div>
+        </div>
     </div>
+
     <div class="zone b" data-color="b">
         <div class="fill" id="bFill"></div>
-        <div>B</div>
-        <div id="bVal"></div>
+        <div class="label">
+            <span class="material-symbols-outlined">lens</span>
+            <div class="value" id="bVal"></div>
+        </div>
     </div>
 </div>
 
-<button id="check">MATCH</button>
+<div class="card">
+    <button id="check">
+        <span class="material-symbols-outlined">bolt</span>
+        MATCH
+    </button>
+</div>
 
 <div id="info"></div>
+
+</div>
 
 <script src="main.js"></script>
 </body>
