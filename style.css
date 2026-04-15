@@ -6,6 +6,7 @@ body {
     text-align: center;
     overflow: hidden;
     touch-action: none;
+    overscroll-behavior: none;
 }
 
 .header {
