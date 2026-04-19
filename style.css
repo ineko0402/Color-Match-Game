@@ -11,31 +11,48 @@ body {
 .app {
     max-width: 420px;
     margin: auto;
-    padding: 16px;
+    padding: 12px 16px;
 }
 
 /* ヘッダー */
 .header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-}
-
-.score {
-    font-size: 18px;
+    padding: 2px 0;
 }
 
 .rank {
     font-size: 28px;
     font-weight: bold;
+    transition: color 0.3s, text-shadow 0.3s;
 }
+
+/* ランクエフェクト */
+@keyframes rankPop {
+    0%   { transform: scale(1); filter: brightness(1); }
+    30%  { transform: scale(1.5); filter: brightness(1.6); }
+    60%  { transform: scale(0.95); filter: brightness(1.1); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.rank.pop {
+    animation: rankPop 0.45s cubic-bezier(.17,.67,.35,1.5);
+}
+
+/* ランク色 */
+.rank.rank-S { color: #ffd700; text-shadow: 0 0 18px rgba(255,215,0,0.7), 0 0 40px rgba(255,215,0,0.3); }
+.rank.rank-A { color: #c084fc; text-shadow: 0 0 14px rgba(192,132,252,0.6); }
+.rank.rank-B { color: #60a5fa; text-shadow: 0 0 12px rgba(96,165,250,0.5); }
+.rank.rank-C { color: #4ade80; text-shadow: 0 0 10px rgba(74,222,128,0.4); }
+.rank.rank-D { color: #94a3b8; text-shadow: none; }
 
 /* カード */
 .card {
     background: rgba(255,255,255,0.06);
     border-radius: 16px;
     padding: 14px;
-    margin-top: 12px;
+    margin-top: 10px;
     backdrop-filter: blur(10px);
 }
 
@@ -47,15 +64,22 @@ body {
 
 .color-box {
     flex: 1;
-    height: 110px;
+    height: 100px;
     border-radius: 12px;
 }
 
-/* 操作 */
+/* コントロールラッパー（バッチ＋バー） */
+.controls-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 操作バー */
 .controls {
     display: flex;
     gap: 10px;
-    height: 260px;
+    height: 240px;
 }
 
 .zone {
@@ -67,6 +91,7 @@ body {
     justify-content: center;
     align-items: center;
     touch-action: none;
+    cursor: pointer;
 }
 
 /* ネオン */
@@ -99,6 +124,59 @@ body {
     font-weight: bold;
 }
 
+/* キーヒント */
+.key-hint {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+}
+
+.key-hint-inline {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 4px;
+}
+
+/* 一括操作ボタン */
+.batch-btn {
+    width: 100%;
+    padding: 8px;
+    font-size: 13px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: transform 0.1s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.batch-btn .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.batch-btn.down {
+    background: linear-gradient(135deg, #1e3a5f, #2c5364);
+    box-shadow: 0 0 10px rgba(44,83,100,0.3);
+}
+
+.batch-btn.up {
+    background: linear-gradient(135deg, #2c5364, #3a7ca5);
+    box-shadow: 0 0 10px rgba(58,124,165,0.3);
+}
+
+.batch-btn:active {
+    transform: scale(0.96);
+}
+
 /* ボタン */
 button {
     width: 100%;
@@ -113,6 +191,7 @@ button {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    cursor: pointer;
 }
 
 button:active {
@@ -122,4 +201,141 @@ button:active {
 /* アイコン */
 .material-symbols-outlined {
     font-size: 20px;
+}
+
+/* ========== リザルトオーバーレイ ========== */
+.result-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: overlayIn 0.3s ease-out;
+}
+
+.result-overlay.hidden {
+    display: none;
+}
+
+@keyframes overlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.result-card {
+    background: linear-gradient(160deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 32px 28px;
+    width: 320px;
+    max-width: 90vw;
+    text-align: center;
+    backdrop-filter: blur(20px);
+    animation: cardIn 0.5s cubic-bezier(.17,.67,.35,1.3);
+}
+
+@keyframes cardIn {
+    from { transform: scale(0.7) translateY(30px); opacity: 0; }
+    to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.result-rank {
+    font-size: 80px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 8px;
+    animation: rankResultPop 0.6s 0.2s cubic-bezier(.17,.67,.35,1.5) both;
+}
+
+.result-rank.rank-S { color: #ffd700; text-shadow: 0 0 30px rgba(255,215,0,0.6), 0 0 60px rgba(255,215,0,0.2); }
+.result-rank.rank-A { color: #c084fc; text-shadow: 0 0 24px rgba(192,132,252,0.5); }
+.result-rank.rank-B { color: #60a5fa; text-shadow: 0 0 20px rgba(96,165,250,0.4); }
+.result-rank.rank-C { color: #4ade80; text-shadow: 0 0 16px rgba(74,222,128,0.3); }
+.result-rank.rank-D { color: #94a3b8; text-shadow: none; }
+
+@keyframes rankResultPop {
+    0%   { transform: scale(0); opacity: 0; }
+    50%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+.result-score {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    opacity: 0;
+    animation: fadeSlideUp 0.4s 0.5s ease-out both;
+}
+
+.result-diff {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeSlideUp 0.4s 0.6s ease-out both;
+}
+
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-colors {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeSlideUp 0.4s 0.7s ease-out both;
+}
+
+.result-color-wrap {
+    text-align: center;
+}
+
+.result-color-box {
+    width: 80px;
+    height: 60px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+
+.result-color-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+}
+
+.result-vs {
+    font-size: 28px;
+    color: rgba(255,255,255,0.3);
+}
+
+.next-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(45deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    opacity: 0;
+    animation: fadeSlideUp 0.4s 0.85s ease-out both;
+    transition: transform 0.1s;
+    cursor: pointer;
+}
+
+.next-btn:active {
+    transform: scale(0.96);
 }

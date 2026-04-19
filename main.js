@@ -1,10 +1,12 @@
 "use strict";
 
 const state = {
-    r: 128,
-    g: 128,
-    b: 128,
-    target: null
+    r: 0,
+    g: 0,
+    b: 0,
+    target: null,
+    currentRank: "-",
+    resultOpen: false
 };
 
 function generateColor() {
@@ -39,6 +41,32 @@ function css(c){
     return `rgb(${c.r},${c.g},${c.b})`;
 }
 
+/* ランク色クラスを設定 */
+function applyRankClass(el, r){
+    el.classList.remove("rank-S","rank-A","rank-B","rank-C","rank-D");
+    if(r !== "-") el.classList.add("rank-"+r);
+}
+
+/* ランク変更エフェクト（イベント駆動） */
+function checkRankChange(){
+    const cur = {r:state.r, g:state.g, b:state.b};
+    const d = diff(state.target, cur);
+    const newRank = rank(d);
+
+    const rankEl = document.getElementById("rank");
+
+    if(newRank !== state.currentRank){
+        state.currentRank = newRank;
+        rankEl.textContent = newRank;
+        applyRankClass(rankEl, newRank);
+
+        // popアニメーション再トリガー
+        rankEl.classList.remove("pop");
+        void rankEl.offsetWidth; // reflow強制
+        rankEl.classList.add("pop");
+    }
+}
+
 function update(){
     const cur = {r:state.r,g:state.g,b:state.b};
 
@@ -52,6 +80,9 @@ function update(){
     document.getElementById("rFill").style.height = state.r/255*100+"%";
     document.getElementById("gFill").style.height = state.g/255*100+"%";
     document.getElementById("bFill").style.height = state.b/255*100+"%";
+
+    // ランクをリアルタイム判定（change時のみ呼ばれるので軽量）
+    checkRankChange();
 }
 
 function change(k,d){
@@ -60,6 +91,15 @@ function change(k,d){
     update();
 }
 
+/* RGB一括増減 */
+function batchChange(d){
+    state.r = Math.max(0, Math.min(255, state.r + d));
+    state.g = Math.max(0, Math.min(255, state.g + d));
+    state.b = Math.max(0, Math.min(255, state.b + d));
+    update();
+}
+
+/* タッチ入力 */
 function input(){
     document.querySelectorAll(".zone").forEach(z=>{
 
@@ -103,16 +143,112 @@ function input(){
     });
 }
 
-function check(){
-    const cur={r:state.r,g:state.g,b:state.b};
-    const d=diff(state.target,cur);
+/* マウスクリック入力（PC対応） */
+function mouseInput(){
+    document.querySelectorAll(".zone").forEach(z=>{
+        z.addEventListener("click",e=>{
+            const rect=z.getBoundingClientRect();
+            const y=e.clientY-rect.top;
+            const k=z.dataset.color;
 
-    document.getElementById("score").textContent=score(d);
-    document.getElementById("rank").textContent=rank(d);
-    document.getElementById("info").textContent="差:"+Math.floor(d);
+            if(y<rect.height/2){
+                change(k,1);
+            } else {
+                change(k,-1);
+            }
+        });
+    });
+}
 
-    state.target=generateColor();
+/* キーボード入力 */
+function keyInput(){
+    const KEY_STEP = 5;
+
+    document.addEventListener("keydown",e=>{
+        // リザルト画面中はEnter/Spaceのみ受付
+        if(state.resultOpen){
+            if(e.code==="Enter" || e.code==="Space"){
+                e.preventDefault();
+                nextRound();
+            }
+            return;
+        }
+
+        switch(e.code){
+            // RGB増加: A S D
+            case "KeyA": change("r", KEY_STEP); break;
+            case "KeyS": change("g", KEY_STEP); break;
+            case "KeyD": change("b", KEY_STEP); break;
+
+            // RGB減少: Z X C
+            case "KeyZ": change("r", -KEY_STEP); break;
+            case "KeyX": change("g", -KEY_STEP); break;
+            case "KeyC": change("b", -KEY_STEP); break;
+
+            // マッチ: Space / Enter
+            case "Space":
+            case "Enter":
+                e.preventDefault();
+                check();
+                break;
+        }
+    });
+}
+
+/* ========== リザルト画面 ========== */
+function showResult(){
+    const cur = {r:state.r, g:state.g, b:state.b};
+    const d = diff(state.target, cur);
+    const s = score(d);
+    const r = rank(d);
+
+    // リザルト内容セット
+    const resultRankEl = document.getElementById("result-rank");
+    resultRankEl.textContent = r;
+    resultRankEl.className = "result-rank";
+    applyRankClass(resultRankEl, r);
+
+    document.getElementById("result-score").textContent = s;
+    document.getElementById("result-diff").textContent = Math.floor(d);
+    document.getElementById("result-target").style.background = css(state.target);
+    document.getElementById("result-player").style.background = css(cur);
+
+    // オーバーレイ表示（アニメーション再トリガー）
+    const overlay = document.getElementById("result-overlay");
+    overlay.classList.remove("hidden");
+    state.resultOpen = true;
+
+    // アニメーション再発火のためにノードを再挿入
+    const card = overlay.querySelector(".result-card");
+    const clone = card.cloneNode(true);
+    card.parentNode.replaceChild(clone, card);
+
+    // 新しいNEXTボタンにイベント再バインド
+    clone.querySelector("#next-btn").addEventListener("click", nextRound);
+}
+
+function nextRound(){
+    // オーバーレイ非表示
+    document.getElementById("result-overlay").classList.add("hidden");
+    state.resultOpen = false;
+
+    // RGB値を0にリセット
+    state.r = 0;
+    state.g = 0;
+    state.b = 0;
+    state.currentRank = "-";
+
+    const rankEl = document.getElementById("rank");
+    rankEl.textContent = "-";
+    rankEl.className = "rank";
+
+    // 新しいターゲット
+    state.target = generateColor();
     update();
+}
+
+function check(){
+    showResult();
 }
 
 function disableGesture(){
@@ -128,12 +264,21 @@ function disableGesture(){
 }
 
 function init(){
-    state.target=generateColor();
+    state.r = 0;
+    state.g = 0;
+    state.b = 0;
+    state.currentRank = "-";
+    state.target = generateColor();
     update();
 }
 
 disableGesture();
 input();
+mouseInput();
+keyInput();
 init();
 
-document.getElementById("check").addEventListener("click",check);
+document.getElementById("check").addEventListener("click", check);
+document.getElementById("next-btn").addEventListener("click", nextRound);
+document.getElementById("batchDown").addEventListener("click", ()=> batchChange(-10));
+document.getElementById("batchUp").addEventListener("click", ()=> batchChange(10));

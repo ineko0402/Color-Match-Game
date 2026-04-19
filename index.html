@@ -15,7 +15,6 @@
 <div class="app">
 
 <div class="header">
-    <div class="score">Score: <span id="score">0</span></div>
     <div class="rank" id="rank">-</div>
 </div>
 
@@ -24,41 +23,84 @@
     <div id="resultColor" class="color-box"></div>
 </div>
 
-<div class="card controls">
-    <div class="zone r" data-color="r">
-        <div class="fill" id="rFill"></div>
-        <div class="label">
-            <span class="material-symbols-outlined">lens</span>
-            <div class="value" id="rVal"></div>
+<div class="card controls-wrap">
+    <!-- 一括増加 -->
+    <button id="batchUp" class="batch-btn up">
+        <span class="material-symbols-outlined">add</span>
+        ALL +10
+    </button>
+
+    <div class="controls">
+        <div class="zone r" data-color="r">
+            <div class="fill" id="rFill"></div>
+            <div class="label">
+                <span class="key-hint">A / Z</span>
+                <span class="material-symbols-outlined">lens</span>
+                <div class="value" id="rVal"></div>
+            </div>
+        </div>
+
+        <div class="zone g" data-color="g">
+            <div class="fill" id="gFill"></div>
+            <div class="label">
+                <span class="key-hint">S / X</span>
+                <span class="material-symbols-outlined">lens</span>
+                <div class="value" id="gVal"></div>
+            </div>
+        </div>
+
+        <div class="zone b" data-color="b">
+            <div class="fill" id="bFill"></div>
+            <div class="label">
+                <span class="key-hint">D / C</span>
+                <span class="material-symbols-outlined">lens</span>
+                <div class="value" id="bVal"></div>
+            </div>
         </div>
     </div>
 
-    <div class="zone g" data-color="g">
-        <div class="fill" id="gFill"></div>
-        <div class="label">
-            <span class="material-symbols-outlined">lens</span>
-            <div class="value" id="gVal"></div>
-        </div>
-    </div>
-
-    <div class="zone b" data-color="b">
-        <div class="fill" id="bFill"></div>
-        <div class="label">
-            <span class="material-symbols-outlined">lens</span>
-            <div class="value" id="bVal"></div>
-        </div>
-    </div>
+    <!-- 一括減少 -->
+    <button id="batchDown" class="batch-btn down">
+        <span class="material-symbols-outlined">remove</span>
+        ALL -10
+    </button>
 </div>
 
 <div class="card">
     <button id="check">
         <span class="material-symbols-outlined">bolt</span>
         MATCH
+        <span class="key-hint-inline">Space</span>
     </button>
 </div>
 
 <div id="info"></div>
 
+</div>
+
+<!-- リザルトオーバーレイ -->
+<div id="result-overlay" class="result-overlay hidden">
+    <div class="result-card">
+        <div class="result-rank" id="result-rank">S</div>
+        <div class="result-score">Score: <span id="result-score">0</span></div>
+        <div class="result-diff">差: <span id="result-diff">0</span></div>
+        <div class="result-colors">
+            <div class="result-color-wrap">
+                <div class="result-color-box" id="result-target"></div>
+                <div class="result-color-label">TARGET</div>
+            </div>
+            <span class="material-symbols-outlined result-vs">compare_arrows</span>
+            <div class="result-color-wrap">
+                <div class="result-color-box" id="result-player"></div>
+                <div class="result-color-label">YOU</div>
+            </div>
+        </div>
+        <button id="next-btn" class="next-btn">
+            <span class="material-symbols-outlined">arrow_forward</span>
+            NEXT
+            <span class="key-hint-inline">Enter</span>
+        </button>
+    </div>
 </div>
 
 <script src="main.js"></script>
