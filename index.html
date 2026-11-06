@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#203a43">
 <meta name="description" content="RGBの色を合わせるカラーマッチングゲーム">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261107.1">
 <title>Color Match</title>
 </head>
 
@@ -28,12 +28,12 @@
 <div class="app">
 
 <div class="header">
-    <div class="rank" id="rank">-</div>
+    <div class="rank" id="rank" aria-live="polite">-</div>
 </div>
 
 <div class="card colors">
-    <div id="target" class="color-box"></div>
-    <div id="resultColor" class="color-box"></div>
+    <div id="target" class="color-box" role="img" aria-label="目標の色"></div>
+    <div id="resultColor" class="color-box" role="img" aria-label="現在の色"></div>
 </div>
 
 <div class="card controls-wrap">
@@ -44,7 +44,7 @@
     </button>
 
     <div class="controls">
-        <div class="zone r" data-color="r">
+        <div class="zone r" data-color="r" role="slider" tabindex="0" aria-label="赤" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
             <div class="fill" id="rFill"></div>
             <div class="label">
                 <span class="key-hint">A / Z</span>
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <div class="zone g" data-color="g">
+        <div class="zone g" data-color="g" role="slider" tabindex="0" aria-label="緑" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
             <div class="fill" id="gFill"></div>
             <div class="label">
                 <span class="key-hint">S / X</span>
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <div class="zone b" data-color="b">
+        <div class="zone b" data-color="b" role="slider" tabindex="0" aria-label="青" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
             <div class="fill" id="bFill"></div>
             <div class="label">
                 <span class="key-hint">D / C</span>
@@ -92,7 +92,7 @@
 </div>
 
 <!-- リザルトオーバーレイ -->
-<div id="result-overlay" class="result-overlay hidden">
+<div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="照合結果">
     <div class="result-card">
         <div class="result-rank" id="result-rank">S</div>
         <div class="result-score">Score: <span id="result-score">0</span></div>
@@ -116,10 +116,10 @@
     </div>
 </div>
 
-<script src="main.js"></script>
+<script src="main.js?v=20261107.1"></script>
 <script>
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
 }
 </script>
 </body>
