@@ -77,6 +77,10 @@ function update(){
     document.getElementById("gVal").textContent = state.g;
     document.getElementById("bVal").textContent = state.b;
 
+    document.querySelector('[data-color="r"]').setAttribute("aria-valuenow", state.r);
+    document.querySelector('[data-color="g"]').setAttribute("aria-valuenow", state.g);
+    document.querySelector('[data-color="b"]').setAttribute("aria-valuenow", state.b);
+
     document.getElementById("rFill").style.height = state.r/255*100+"%";
     document.getElementById("gFill").style.height = state.g/255*100+"%";
     document.getElementById("bFill").style.height = state.b/255*100+"%";
@@ -155,6 +159,23 @@ function mouseInput(){
                 change(k,1);
             } else {
                 change(k,-1);
+            }
+        });
+    });
+}
+
+/* フォーカス中のRGBバーを矢印キーで微調整 */
+function zoneKeyboardInput(){
+    document.querySelectorAll(".zone").forEach(z=>{
+        z.addEventListener("keydown", e=>{
+            const k = z.dataset.color;
+            if(e.code === "ArrowUp" || e.code === "ArrowRight"){
+                e.preventDefault();
+                change(k, 1);
+            }
+            if(e.code === "ArrowDown" || e.code === "ArrowLeft"){
+                e.preventDefault();
+                change(k, -1);
             }
         });
     });
@@ -251,18 +272,6 @@ function check(){
     showResult();
 }
 
-function disableGesture(){
-    document.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
-    document.addEventListener("gesturestart",e=>e.preventDefault());
-
-    let last=0;
-    document.addEventListener("touchend",e=>{
-        const now=Date.now();
-        if(now-last<=300)e.preventDefault();
-        last=now;
-    });
-}
-
 function init(){
     state.r = 0;
     state.g = 0;
@@ -272,9 +281,9 @@ function init(){
     update();
 }
 
-disableGesture();
 input();
 mouseInput();
+zoneKeyboardInput();
 keyInput();
 init();
 
