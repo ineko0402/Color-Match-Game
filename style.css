@@ -23,9 +23,24 @@ body {
 /* ヘッダー */
 .header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding: 2px 0;
+}
+
+.header > div {
+    min-width: 0;
+}
+
+.icon-btn {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
 }
 
 .header h1 {
@@ -38,6 +53,39 @@ body {
     margin: 4px 0 0;
     color: rgba(255,255,255,0.68);
     font-size: 12px;
+}
+
+.learning-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    font-size: 12px;
+}
+
+.learning-toolbar select {
+    min-width: 0;
+    padding: 6px 28px 6px 8px;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 8px;
+    background: #203a43;
+    color: #fff;
+    font: inherit;
+}
+
+.streak {
+    white-space: nowrap;
+    color: rgba(255,255,255,0.68);
+}
+
+.streak strong {
+    color: #f8d66d;
+    font-size: 16px;
 }
 
 .rank {
@@ -198,7 +246,7 @@ button:focus-visible {
     cursor: pointer;
 }
 
-.batch-btn .material-symbols-outlined {
+.batch-btn .ui-icon {
     font-size: 16px;
 }
 
@@ -321,9 +369,70 @@ button:active {
     font-size: 13px;
 }
 
+body[data-difficulty="advanced"] .brightness,
+body[data-difficulty="advanced"] .channel-hints {
+    display: none;
+}
+
+body[data-difficulty="advanced"] .value {
+    visibility: hidden;
+}
+
+.history-card h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.section-heading > span {
+    color: #f8d66d;
+    font-size: 12px;
+}
+
+.history-list {
+    display: grid;
+    gap: 7px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.history-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.05);
+    font-size: 12px;
+}
+
+.history-list li span {
+    color: rgba(255,255,255,0.62);
+    text-align: right;
+}
+
+.history-list .empty-history {
+    display: block;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+}
+
 /* アイコン */
-.material-symbols-outlined {
+.ui-icon {
     font-size: 20px;
+    line-height: 1;
+}
+
+.channel-dot {
+    font-size: 18px;
 }
 
 /* ========== リザルトオーバーレイ ========== */
@@ -468,6 +577,72 @@ button:active {
 
 .next-btn:active {
     transform: scale(0.96);
+}
+
+.help-dialog {
+    width: min(92vw, 430px);
+    padding: 0;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    background: #172f39;
+    color: #fff;
+}
+
+.help-dialog::backdrop {
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+}
+
+.help-content {
+    padding: 24px;
+}
+
+.help-content h2 {
+    margin: 0 0 12px;
+}
+
+.help-content ol {
+    margin: 0;
+    padding-left: 22px;
+    color: rgba(255,255,255,0.76);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.difficulty-guide {
+    display: grid;
+    gap: 6px;
+    margin: 16px 0;
+}
+
+.difficulty-guide > div {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.06);
+    font-size: 12px;
+}
+
+.difficulty-guide dt {
+    font-weight: 700;
+}
+
+.difficulty-guide dd {
+    margin: 0;
+    color: rgba(255,255,255,0.65);
+}
+
+.help-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.danger-btn {
+    background: rgba(255,81,47,0.18);
+    border: 1px solid rgba(255,81,47,0.4);
 }
 
 @media (max-height: 680px) {
