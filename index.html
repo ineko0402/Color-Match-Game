@@ -20,20 +20,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
-<link rel="stylesheet" href="style.css?v=20261107.1">
+<link rel="stylesheet" href="style.css?v=20261107.2">
 <title>Color Match</title>
 </head>
 
 <body>
 <div class="app">
 
-<div class="header">
-    <div class="rank" id="rank" aria-live="polite">-</div>
-</div>
+<header class="header">
+    <div>
+        <h1>Color Match</h1>
+        <p>色を見てRGBを調整し、照合しながら近づけよう</p>
+    </div>
+</header>
 
 <div class="card colors">
-    <div id="target" class="color-box" role="img" aria-label="目標の色"></div>
-    <div id="resultColor" class="color-box" role="img" aria-label="現在の色"></div>
+    <div class="color-preview">
+        <div id="target" class="color-box" role="img" aria-label="目標の色"></div>
+        <span>TARGET</span>
+    </div>
+    <div class="color-preview">
+        <div id="resultColor" class="color-box" role="img" aria-label="現在の色"></div>
+        <span>YOU</span>
+    </div>
 </div>
 
 <div class="card controls-wrap">
@@ -82,41 +91,57 @@
 <div class="card">
     <button id="check">
         <span class="material-symbols-outlined">bolt</span>
-        MATCH
+        照合する
         <span class="key-hint-inline">Space</span>
     </button>
+    <div class="secondary-actions">
+        <button id="reset" class="secondary-btn">RGBをリセット</button>
+        <button id="reveal" class="secondary-btn">答えを見る</button>
+    </div>
 </div>
 
-<div id="info"></div>
+<section id="feedback" class="card feedback hidden" aria-live="polite">
+    <p class="eyebrow">CHECK RESULT</p>
+    <h2 id="closeness">照合結果</h2>
+    <p id="brightness" class="brightness"></p>
+    <p id="feedback-note" class="feedback-note">ヒントを参考に調整して、もう一度照合してみよう。</p>
+    <div class="channel-hints">
+        <div class="channel-hint r-hint"><strong>R</strong><span id="rHint"></span></div>
+        <div class="channel-hint g-hint"><strong>G</strong><span id="gHint"></span></div>
+        <div class="channel-hint b-hint"><strong>B</strong><span id="bHint"></span></div>
+    </div>
+</section>
 
 </div>
 
-<!-- リザルトオーバーレイ -->
-<div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="照合結果">
+<!-- 答え合わせオーバーレイ -->
+<div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="答え合わせ">
     <div class="result-card">
-        <div class="result-rank" id="result-rank">S</div>
-        <div class="result-score">Score: <span id="result-score">0</span></div>
-        <div class="result-diff">差: <span id="result-diff">0</span></div>
+        <p class="eyebrow">ROUND REVIEW</p>
+        <h2>答え合わせ</h2>
+        <p class="result-score">照合回数: <span id="result-checks">0</span>回</p>
         <div class="result-colors">
             <div class="result-color-wrap">
                 <div class="result-color-box" id="result-target"></div>
                 <div class="result-color-label">TARGET</div>
+                <div class="result-rgb" id="target-rgb"></div>
             </div>
             <span class="material-symbols-outlined result-vs">compare_arrows</span>
             <div class="result-color-wrap">
                 <div class="result-color-box" id="result-player"></div>
                 <div class="result-color-label">YOU</div>
+                <div class="result-rgb" id="player-rgb"></div>
             </div>
         </div>
         <button id="next-btn" class="next-btn">
             <span class="material-symbols-outlined">arrow_forward</span>
-            NEXT
+            次の色へ
             <span class="key-hint-inline">Enter</span>
         </button>
     </div>
 </div>
 
-<script src="main.js?v=20261107.1"></script>
+<script src="main.js?v=20261107.2"></script>
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
