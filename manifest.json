@@ -1,7 +1,7 @@
 {
     "name": "Color Match",
     "short_name": "ColorMatch",
-    "description": "RGBの色を合わせるカラーマッチングゲーム",
+    "description": "照合と再調整を通してRGBの色彩感覚を学ぶゲーム",
     "start_url": "./index.html",
     "display": "standalone",
     "orientation": "portrait",

@@ -18,9 +18,7 @@
 <link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-
-<link rel="stylesheet" href="style.css?v=20261107.3">
+<link rel="stylesheet" href="style.css?v=20261107.4">
 <title>Color Match</title>
 </head>
 
@@ -32,7 +30,18 @@
         <h1>Color Match</h1>
         <p>色を見てRGBを調整し、照合しながら近づけよう</p>
     </div>
+    <button id="help" class="icon-btn" aria-label="遊び方を開く">?</button>
 </header>
+
+<div class="learning-toolbar">
+    <label for="difficulty">難易度</label>
+    <select id="difficulty">
+        <option value="beginner">初級</option>
+        <option value="intermediate">中級</option>
+        <option value="advanced">上級</option>
+    </select>
+    <div class="streak">連続クリア <strong id="streak">0</strong></div>
+</div>
 
 <div class="card colors">
     <div class="color-preview">
@@ -48,7 +57,7 @@
 <div class="card controls-wrap">
     <!-- 一括増加 -->
     <button id="batchUp" class="batch-btn up">
-        <span class="material-symbols-outlined">add</span>
+        <span class="ui-icon" aria-hidden="true">＋</span>
         ALL +10
     </button>
 
@@ -57,7 +66,7 @@
             <div class="fill" id="rFill"></div>
             <div class="label">
                 <span class="key-hint">A / Z</span>
-                <span class="material-symbols-outlined">lens</span>
+                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                 <div class="value" id="rVal"></div>
             </div>
         </div>
@@ -66,7 +75,7 @@
             <div class="fill" id="gFill"></div>
             <div class="label">
                 <span class="key-hint">S / X</span>
-                <span class="material-symbols-outlined">lens</span>
+                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                 <div class="value" id="gVal"></div>
             </div>
         </div>
@@ -75,7 +84,7 @@
             <div class="fill" id="bFill"></div>
             <div class="label">
                 <span class="key-hint">D / C</span>
-                <span class="material-symbols-outlined">lens</span>
+                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                 <div class="value" id="bVal"></div>
             </div>
         </div>
@@ -83,14 +92,14 @@
 
     <!-- 一括減少 -->
     <button id="batchDown" class="batch-btn down">
-        <span class="material-symbols-outlined">remove</span>
+        <span class="ui-icon" aria-hidden="true">−</span>
         ALL -10
     </button>
 </div>
 
 <div class="card">
     <button id="check">
-        <span class="material-symbols-outlined">bolt</span>
+        <span class="ui-icon" aria-hidden="true">⚡</span>
         照合する
         <span class="key-hint-inline">Space</span>
     </button>
@@ -113,6 +122,19 @@
     </div>
 </section>
 
+<section class="card history-card" aria-labelledby="history-title">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">LEARNING LOG</p>
+            <h2 id="history-title">最近の記録</h2>
+        </div>
+        <span id="completed-count">0クリア</span>
+    </div>
+    <ol id="history-list" class="history-list">
+        <li class="empty-history">まだ記録がありません</li>
+    </ol>
+</section>
+
 </div>
 
 <!-- 答え合わせオーバーレイ -->
@@ -128,7 +150,7 @@
                 <div class="result-color-label">TARGET</div>
                 <div class="result-rgb" id="target-rgb"></div>
             </div>
-            <span class="material-symbols-outlined result-vs">compare_arrows</span>
+            <span class="ui-icon result-vs" aria-hidden="true">↔</span>
             <div class="result-color-wrap">
                 <div class="result-color-box" id="result-player"></div>
                 <div class="result-color-label">YOU</div>
@@ -136,15 +158,37 @@
             </div>
         </div>
         <button id="next-btn" class="next-btn">
-            <span class="material-symbols-outlined">arrow_forward</span>
+            <span class="ui-icon" aria-hidden="true">→</span>
             次の色へ
             <span class="key-hint-inline">Enter</span>
         </button>
     </div>
 </div>
 
+<dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title">
+    <div class="help-content">
+        <p class="eyebrow">HOW TO LEARN</p>
+        <h2 id="help-title">遊び方</h2>
+        <ol>
+            <li>目標色を見て、R・G・Bを感覚で調整します。</li>
+            <li>「照合する」で、知覚的な近さとヒントを確認します。</li>
+            <li>同じ問題を調整し直し、ΔE00が3以下ならクリアです。</li>
+            <li>「答えを見る」でRGB値を振り返ります。</li>
+        </ol>
+        <dl class="difficulty-guide">
+            <div><dt>初級</dt><dd>明るさとRGBの調整量を表示</dd></div>
+            <div><dt>中級</dt><dd>RGBの方向だけを表示</dd></div>
+            <div><dt>上級</dt><dd>近さだけを表示し、現在値を隠す</dd></div>
+        </dl>
+        <div class="help-actions">
+            <button id="close-help">閉じる</button>
+            <button id="reset-progress" class="danger-btn">記録をリセット</button>
+        </div>
+    </div>
+</dialog>
+
 <script src="color-science.js?v=20261107.1"></script>
-<script src="main.js?v=20261107.3"></script>
+<script src="main.js?v=20261107.4"></script>
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
