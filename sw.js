@@ -1,9 +1,10 @@
-const CACHE_NAME = "color-match-v1";
+const CACHE_NAME = "color-match-v2";
+const CACHE_PREFIX = "color-match-";
 const ASSETS = [
     "./",
     "./index.html",
-    "./style.css",
-    "./main.js",
+    "./style.css?v=20261107.1",
+    "./main.js?v=20261107.1",
     "./manifest.json",
     "./src/favicons/android-chrome-192x192.png",
     "./src/favicons/android-chrome-512x512.png",
@@ -27,7 +28,7 @@ self.addEventListener("activate", e => {
         caches.keys().then(keys =>
             Promise.all(
                 keys
-                    .filter(k => k !== CACHE_NAME)
+                    .filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME)
                     .map(k => caches.delete(k))
             )
         ).then(() => self.clients.claim())
@@ -36,6 +37,22 @@ self.addEventListener("activate", e => {
 
 // フェッチ: キャッシュファースト、フォールバックでネットワーク
 self.addEventListener("fetch", e => {
+    if(e.request.method !== "GET") return;
+
+    if(e.request.mode === "navigate"){
+        e.respondWith(
+            fetch(e.request)
+                .then(response => {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then(cache => cache.put("./index.html", copy));
+                    return response;
+                })
+                .catch(() => caches.match("./index.html"))
+        );
+        return;
+    }
+
     e.respondWith(
         caches.match(e.request)
             .then(cached => cached || fetch(e.request))
