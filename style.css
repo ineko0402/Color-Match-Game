@@ -1,17 +1,23 @@
 body {
     margin: 0;
+    min-height: 100dvh;
     font-family: 'Noto Sans JP', sans-serif;
     background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
     color: #fff;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     overscroll-behavior: none;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
 /* レイアウト */
 .app {
     max-width: 420px;
     margin: auto;
-    padding: 12px 16px;
+    padding: 12px 16px max(20px, env(safe-area-inset-bottom));
 }
 
 /* ヘッダー */
@@ -92,6 +98,12 @@ body {
     align-items: center;
     touch-action: none;
     cursor: pointer;
+}
+
+.zone:focus-visible,
+button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
 }
 
 /* ネオン */
@@ -338,4 +350,32 @@ button:active {
 
 .next-btn:active {
     transform: scale(0.96);
+}
+
+@media (max-height: 680px) {
+    .app {
+        padding-top: 6px;
+    }
+
+    .card {
+        margin-top: 6px;
+        padding: 10px;
+    }
+
+    .color-box {
+        height: 72px;
+    }
+
+    .controls {
+        height: 190px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
