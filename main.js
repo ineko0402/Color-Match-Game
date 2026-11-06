@@ -5,289 +5,251 @@ const state = {
     g: 0,
     b: 0,
     target: null,
-    currentRank: "-",
+    checks: 0,
+    feedbackShown: false,
     resultOpen: false
 };
 
-function generateColor() {
+function generateColor(){
     return {
-        r: Math.floor(Math.random()*256),
-        g: Math.floor(Math.random()*256),
-        b: Math.floor(Math.random()*256)
+        r: Math.floor(Math.random() * 256),
+        g: Math.floor(Math.random() * 256),
+        b: Math.floor(Math.random() * 256)
     };
 }
 
-function diff(a,b){
+function rgbDistance(a, b){
     return Math.sqrt(
-        (a.r-b.r)**2 +
-        (a.g-b.g)**2 +
-        (a.b-b.b)**2
+        (a.r - b.r) ** 2 +
+        (a.g - b.g) ** 2 +
+        (a.b - b.b) ** 2
     );
 }
 
-function score(d){
-    return Math.max(0, Math.floor(100 - d));
-}
-
-function rank(d){
-    if(d<=10)return"S";
-    if(d<=25)return"A";
-    if(d<=50)return"B";
-    if(d<=80)return"C";
-    return"D";
+function luminance(c){
+    return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
 }
 
 function css(c){
     return `rgb(${c.r},${c.g},${c.b})`;
 }
 
-/* ランク色クラスを設定 */
-function applyRankClass(el, r){
-    el.classList.remove("rank-S","rank-A","rank-B","rank-C","rank-D");
-    if(r !== "-") el.classList.add("rank-"+r);
-}
-
-/* ランク変更エフェクト（イベント駆動） */
-function checkRankChange(){
-    const cur = {r:state.r, g:state.g, b:state.b};
-    const d = diff(state.target, cur);
-    const newRank = rank(d);
-
-    const rankEl = document.getElementById("rank");
-
-    if(newRank !== state.currentRank){
-        state.currentRank = newRank;
-        rankEl.textContent = newRank;
-        applyRankClass(rankEl, newRank);
-
-        // popアニメーション再トリガー
-        rankEl.classList.remove("pop");
-        void rankEl.offsetWidth; // reflow強制
-        rankEl.classList.add("pop");
-    }
+function currentColor(){
+    return { r: state.r, g: state.g, b: state.b };
 }
 
 function update(){
-    const cur = {r:state.r,g:state.g,b:state.b};
+    const cur = currentColor();
 
     document.getElementById("resultColor").style.background = css(cur);
     document.getElementById("target").style.background = css(state.target);
 
-    document.getElementById("rVal").textContent = state.r;
-    document.getElementById("gVal").textContent = state.g;
-    document.getElementById("bVal").textContent = state.b;
-
-    document.querySelector('[data-color="r"]').setAttribute("aria-valuenow", state.r);
-    document.querySelector('[data-color="g"]').setAttribute("aria-valuenow", state.g);
-    document.querySelector('[data-color="b"]').setAttribute("aria-valuenow", state.b);
-
-    document.getElementById("rFill").style.height = state.r/255*100+"%";
-    document.getElementById("gFill").style.height = state.g/255*100+"%";
-    document.getElementById("bFill").style.height = state.b/255*100+"%";
-
-    // ランクをリアルタイム判定（change時のみ呼ばれるので軽量）
-    checkRankChange();
+    ["r", "g", "b"].forEach(k => {
+        document.getElementById(`${k}Val`).textContent = state[k];
+        document.getElementById(`${k}Fill`).style.height = `${state[k] / 255 * 100}%`;
+        document.querySelector(`[data-color="${k}"]`).setAttribute("aria-valuenow", state[k]);
+    });
 }
 
-function change(k,d){
-    const n = state[k] + d;
-    state[k] = Math.max(0,Math.min(255,n));
+function markFeedbackStale(){
+    if(!state.feedbackShown) return;
+    document.getElementById("feedback").classList.add("stale");
+    document.getElementById("feedback-note").textContent = "調整後の状態を確認するには、もう一度照合してください。";
+}
+
+function change(k, d){
+    state[k] = Math.max(0, Math.min(255, state[k] + d));
     update();
+    markFeedbackStale();
 }
 
-/* RGB一括増減 */
 function batchChange(d){
-    state.r = Math.max(0, Math.min(255, state.r + d));
-    state.g = Math.max(0, Math.min(255, state.g + d));
-    state.b = Math.max(0, Math.min(255, state.b + d));
+    ["r", "g", "b"].forEach(k => {
+        state[k] = Math.max(0, Math.min(255, state[k] + d));
+    });
     update();
+    markFeedbackStale();
 }
 
-/* タッチ入力 */
+function closenessLabel(distance){
+    if(distance <= 10) return "ほぼ同じ色です";
+    if(distance <= 25) return "かなり近づきました";
+    if(distance <= 50) return "少し違いがあります";
+    if(distance <= 80) return "まだ違いがあります";
+    return "かなり離れています";
+}
+
+function brightnessLabel(target, current){
+    const difference = luminance(target) - luminance(current);
+    if(Math.abs(difference) <= 5) return "明るさはほぼ合っています";
+    if(difference > 20) return "現在の色はかなり暗めです";
+    if(difference > 0) return "現在の色は少し暗めです";
+    if(difference < -20) return "現在の色はかなり明るめです";
+    return "現在の色は少し明るめです";
+}
+
+function channelHint(targetValue, currentValue){
+    const difference = targetValue - currentValue;
+    const amount = Math.abs(difference);
+
+    if(amount <= 3) return "✓ ほぼ合っています";
+
+    const direction = difference > 0 ? "増やす" : "減らす";
+    const arrow = difference > 0 ? "↑" : "↓";
+    if(amount <= 15) return `${arrow} 少し${direction}`;
+    if(amount <= 40) return `${arrow} ${direction}`;
+    return `${arrow} 大きく${direction}`;
+}
+
+function check(){
+    const cur = currentColor();
+    const distance = rgbDistance(state.target, cur);
+
+    state.checks += 1;
+    state.feedbackShown = true;
+
+    document.getElementById("closeness").textContent = closenessLabel(distance);
+    document.getElementById("brightness").textContent = brightnessLabel(state.target, cur);
+    document.getElementById("rHint").textContent = channelHint(state.target.r, state.r);
+    document.getElementById("gHint").textContent = channelHint(state.target.g, state.g);
+    document.getElementById("bHint").textContent = channelHint(state.target.b, state.b);
+    document.getElementById("feedback-note").textContent = "ヒントを参考に調整して、もう一度照合してみよう。";
+
+    const feedback = document.getElementById("feedback");
+    feedback.classList.remove("hidden", "stale");
+    feedback.scrollIntoView({ behavior: "auto", block: "nearest" });
+}
+
+function resetMix(){
+    state.r = 0;
+    state.g = 0;
+    state.b = 0;
+    update();
+    markFeedbackStale();
+}
+
+function showAnswer(){
+    const cur = currentColor();
+
+    document.getElementById("result-checks").textContent = state.checks;
+    document.getElementById("result-target").style.background = css(state.target);
+    document.getElementById("result-player").style.background = css(cur);
+    document.getElementById("target-rgb").textContent = `RGB(${state.target.r}, ${state.target.g}, ${state.target.b})`;
+    document.getElementById("player-rgb").textContent = `RGB(${cur.r}, ${cur.g}, ${cur.b})`;
+
+    document.getElementById("result-overlay").classList.remove("hidden");
+    state.resultOpen = true;
+    document.getElementById("next-btn").focus();
+}
+
+function nextRound(){
+    document.getElementById("result-overlay").classList.add("hidden");
+    document.getElementById("feedback").classList.add("hidden");
+
+    state.r = 0;
+    state.g = 0;
+    state.b = 0;
+    state.checks = 0;
+    state.feedbackShown = false;
+    state.resultOpen = false;
+    state.target = generateColor();
+
+    update();
+    document.getElementById("check").focus();
+}
+
 function input(){
-    document.querySelectorAll(".zone").forEach(z=>{
+    document.querySelectorAll(".zone").forEach(z => {
+        let start = 0;
+        let moved = false;
 
-        let start=0;
-        let moved=false;
-
-        z.addEventListener("touchstart",e=>{
+        z.addEventListener("touchstart", e => {
             e.preventDefault();
-            start=e.touches[0].clientY;
-            moved=false;
-        },{passive:false});
+            start = e.touches[0].clientY;
+            moved = false;
+        }, { passive: false });
 
-        z.addEventListener("touchmove",e=>{
+        z.addEventListener("touchmove", e => {
             e.preventDefault();
-            const y=e.touches[0].clientY;
-            const diff=start-y;
-            const k=z.dataset.color;
+            const y = e.touches[0].clientY;
+            const amount = Math.floor((start - y) / 8);
 
-            const d=Math.floor(diff/8);
-
-            if(d!==0){
-                change(k,d);
-                start=y;
-                moved=true;
+            if(amount !== 0){
+                change(z.dataset.color, amount);
+                start = y;
+                moved = true;
             }
-        },{passive:false});
+        }, { passive: false });
 
-        z.addEventListener("touchend",e=>{
-            if(moved)return;
-
-            const rect=z.getBoundingClientRect();
-            const y=e.changedTouches[0].clientY-rect.top;
-            const k=z.dataset.color;
-
-            if(y<rect.height/2){
-                change(k,1);
-                return;
-            }
-            change(k,-1);
+        z.addEventListener("touchend", e => {
+            if(moved) return;
+            const rect = z.getBoundingClientRect();
+            const y = e.changedTouches[0].clientY - rect.top;
+            change(z.dataset.color, y < rect.height / 2 ? 1 : -1);
         });
-    });
-}
 
-/* マウスクリック入力（PC対応） */
-function mouseInput(){
-    document.querySelectorAll(".zone").forEach(z=>{
-        z.addEventListener("click",e=>{
-            const rect=z.getBoundingClientRect();
-            const y=e.clientY-rect.top;
-            const k=z.dataset.color;
-
-            if(y<rect.height/2){
-                change(k,1);
-            } else {
-                change(k,-1);
-            }
+        z.addEventListener("click", e => {
+            const rect = z.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            change(z.dataset.color, y < rect.height / 2 ? 1 : -1);
         });
-    });
-}
 
-/* フォーカス中のRGBバーを矢印キーで微調整 */
-function zoneKeyboardInput(){
-    document.querySelectorAll(".zone").forEach(z=>{
-        z.addEventListener("keydown", e=>{
-            const k = z.dataset.color;
+        z.addEventListener("keydown", e => {
             if(e.code === "ArrowUp" || e.code === "ArrowRight"){
                 e.preventDefault();
-                change(k, 1);
+                change(z.dataset.color, 1);
             }
             if(e.code === "ArrowDown" || e.code === "ArrowLeft"){
                 e.preventDefault();
-                change(k, -1);
+                change(z.dataset.color, -1);
             }
         });
     });
 }
 
-/* キーボード入力 */
 function keyInput(){
-    const KEY_STEP = 5;
+    const keyStep = 5;
 
-    document.addEventListener("keydown",e=>{
-        // リザルト画面中はEnter/Spaceのみ受付
+    document.addEventListener("keydown", e => {
         if(state.resultOpen){
-            if(e.code==="Enter" || e.code==="Space"){
+            if(e.code === "Enter" || e.code === "Space"){
                 e.preventDefault();
                 nextRound();
             }
             return;
         }
 
-        switch(e.code){
-            // RGB増加: A S D
-            case "KeyA": change("r", KEY_STEP); break;
-            case "KeyS": change("g", KEY_STEP); break;
-            case "KeyD": change("b", KEY_STEP); break;
+        if(e.target.closest("button")) return;
 
-            // RGB減少: Z X C
-            case "KeyZ": change("r", -KEY_STEP); break;
-            case "KeyX": change("g", -KEY_STEP); break;
-            case "KeyC": change("b", -KEY_STEP); break;
+        const actions = {
+            KeyA: () => change("r", keyStep),
+            KeyZ: () => change("r", -keyStep),
+            KeyS: () => change("g", keyStep),
+            KeyX: () => change("g", -keyStep),
+            KeyD: () => change("b", keyStep),
+            KeyC: () => change("b", -keyStep)
+        };
 
-            // マッチ: Space / Enter
-            case "Space":
-            case "Enter":
-                e.preventDefault();
-                check();
-                break;
+        if(actions[e.code]) actions[e.code]();
+        if(e.code === "Space"){
+            e.preventDefault();
+            check();
         }
     });
 }
 
-/* ========== リザルト画面 ========== */
-function showResult(){
-    const cur = {r:state.r, g:state.g, b:state.b};
-    const d = diff(state.target, cur);
-    const s = score(d);
-    const r = rank(d);
-
-    // リザルト内容セット
-    const resultRankEl = document.getElementById("result-rank");
-    resultRankEl.textContent = r;
-    resultRankEl.className = "result-rank";
-    applyRankClass(resultRankEl, r);
-
-    document.getElementById("result-score").textContent = s;
-    document.getElementById("result-diff").textContent = Math.floor(d);
-    document.getElementById("result-target").style.background = css(state.target);
-    document.getElementById("result-player").style.background = css(cur);
-
-    // オーバーレイ表示（アニメーション再トリガー）
-    const overlay = document.getElementById("result-overlay");
-    overlay.classList.remove("hidden");
-    state.resultOpen = true;
-
-    // アニメーション再発火のためにノードを再挿入
-    const card = overlay.querySelector(".result-card");
-    const clone = card.cloneNode(true);
-    card.parentNode.replaceChild(clone, card);
-
-    // 新しいNEXTボタンにイベント再バインド
-    clone.querySelector("#next-btn").addEventListener("click", nextRound);
-}
-
-function nextRound(){
-    // オーバーレイ非表示
-    document.getElementById("result-overlay").classList.add("hidden");
-    state.resultOpen = false;
-
-    // RGB値を0にリセット
-    state.r = 0;
-    state.g = 0;
-    state.b = 0;
-    state.currentRank = "-";
-
-    const rankEl = document.getElementById("rank");
-    rankEl.textContent = "-";
-    rankEl.className = "rank";
-
-    // 新しいターゲット
-    state.target = generateColor();
-    update();
-}
-
-function check(){
-    showResult();
-}
-
 function init(){
-    state.r = 0;
-    state.g = 0;
-    state.b = 0;
-    state.currentRank = "-";
     state.target = generateColor();
     update();
 }
 
 input();
-mouseInput();
-zoneKeyboardInput();
 keyInput();
 init();
 
 document.getElementById("check").addEventListener("click", check);
+document.getElementById("reset").addEventListener("click", resetMix);
+document.getElementById("reveal").addEventListener("click", showAnswer);
 document.getElementById("next-btn").addEventListener("click", nextRound);
-document.getElementById("batchDown").addEventListener("click", ()=> batchChange(-10));
-document.getElementById("batchUp").addEventListener("click", ()=> batchChange(10));
+document.getElementById("batchDown").addEventListener("click", () => batchChange(-10));
+document.getElementById("batchUp").addEventListener("click", () => batchChange(10));
