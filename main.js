@@ -18,18 +18,6 @@ function generateColor(){
     };
 }
 
-function rgbDistance(a, b){
-    return Math.sqrt(
-        (a.r - b.r) ** 2 +
-        (a.g - b.g) ** 2 +
-        (a.b - b.b) ** 2
-    );
-}
-
-function luminance(c){
-    return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
-}
-
 function css(c){
     return `rgb(${c.r},${c.g},${c.b})`;
 }
@@ -71,20 +59,19 @@ function batchChange(d){
     markFeedbackStale();
 }
 
-function closenessLabel(distance){
-    if(distance <= 10) return "ほぼ同じ色です";
-    if(distance <= 25) return "かなり近づきました";
-    if(distance <= 50) return "少し違いがあります";
-    if(distance <= 80) return "まだ違いがあります";
+function closenessLabel(deltaE){
+    if(deltaE <= 1) return "ほぼ同じ色です";
+    if(deltaE <= 3) return "かなり近づきました";
+    if(deltaE <= 6) return "少し違いがあります";
+    if(deltaE <= 12) return "まだ違いがあります";
     return "かなり離れています";
 }
 
-function brightnessLabel(target, current){
-    const difference = luminance(target) - luminance(current);
-    if(Math.abs(difference) <= 5) return "明るさはほぼ合っています";
-    if(difference > 20) return "現在の色はかなり暗めです";
-    if(difference > 0) return "現在の色は少し暗めです";
-    if(difference < -20) return "現在の色はかなり明るめです";
+function brightnessLabel(lightnessDifference){
+    if(Math.abs(lightnessDifference) <= 1) return "明るさはほぼ合っています";
+    if(lightnessDifference > 5) return "現在の色はかなり暗めです";
+    if(lightnessDifference > 0) return "現在の色は少し暗めです";
+    if(lightnessDifference < -5) return "現在の色はかなり明るめです";
     return "現在の色は少し明るめです";
 }
 
@@ -103,17 +90,20 @@ function channelHint(targetValue, currentValue){
 
 function check(){
     const cur = currentColor();
-    const distance = rgbDistance(state.target, cur);
+    const comparison = ColorScience.compareRgb(state.target, cur);
 
     state.checks += 1;
     state.feedbackShown = true;
 
-    document.getElementById("closeness").textContent = closenessLabel(distance);
-    document.getElementById("brightness").textContent = brightnessLabel(state.target, cur);
+    document.getElementById("closeness").textContent = closenessLabel(comparison.deltaE);
+    document.getElementById("delta-e").textContent = `知覚的な色差 ΔE00: ${comparison.deltaE.toFixed(1)}`;
+    document.getElementById("brightness").textContent = brightnessLabel(comparison.lightnessDifference);
     document.getElementById("rHint").textContent = channelHint(state.target.r, state.r);
     document.getElementById("gHint").textContent = channelHint(state.target.g, state.g);
     document.getElementById("bHint").textContent = channelHint(state.target.b, state.b);
-    document.getElementById("feedback-note").textContent = "ヒントを参考に調整して、もう一度照合してみよう。";
+    document.getElementById("feedback-note").textContent = comparison.deltaE <= 3
+        ? "クリア！答え合わせでRGB値を振り返ってみよう。"
+        : "ヒントを参考に調整して、もう一度照合してみよう。";
 
     const feedback = document.getElementById("feedback");
     feedback.classList.remove("hidden", "stale");
@@ -130,8 +120,10 @@ function resetMix(){
 
 function showAnswer(){
     const cur = currentColor();
+    const comparison = ColorScience.compareRgb(state.target, cur);
 
     document.getElementById("result-checks").textContent = state.checks;
+    document.getElementById("result-delta-e").textContent = comparison.deltaE.toFixed(1);
     document.getElementById("result-target").style.background = css(state.target);
     document.getElementById("result-player").style.background = css(cur);
     document.getElementById("target-rgb").textContent = `RGB(${state.target.r}, ${state.target.g}, ${state.target.b})`;

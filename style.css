@@ -282,6 +282,13 @@ button:active {
     color: rgba(255,255,255,0.76);
 }
 
+.delta-e {
+    margin: 8px 0 0;
+    color: #f8d66d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
 .feedback-note {
     margin: 8px 0 12px;
     font-size: 12px;
