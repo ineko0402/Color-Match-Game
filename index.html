@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
-<link rel="stylesheet" href="style.css?v=20261107.2">
+<link rel="stylesheet" href="style.css?v=20261107.3">
 <title>Color Match</title>
 </head>
 
@@ -103,6 +103,7 @@
 <section id="feedback" class="card feedback hidden" aria-live="polite">
     <p class="eyebrow">CHECK RESULT</p>
     <h2 id="closeness">照合結果</h2>
+    <p id="delta-e" class="delta-e"></p>
     <p id="brightness" class="brightness"></p>
     <p id="feedback-note" class="feedback-note">ヒントを参考に調整して、もう一度照合してみよう。</p>
     <div class="channel-hints">
@@ -120,6 +121,7 @@
         <p class="eyebrow">ROUND REVIEW</p>
         <h2>答え合わせ</h2>
         <p class="result-score">照合回数: <span id="result-checks">0</span>回</p>
+        <p class="result-diff">最終色差 ΔE00: <span id="result-delta-e">0</span></p>
         <div class="result-colors">
             <div class="result-color-wrap">
                 <div class="result-color-box" id="result-target"></div>
@@ -141,7 +143,8 @@
     </div>
 </div>
 
-<script src="main.js?v=20261107.2"></script>
+<script src="color-science.js?v=20261107.1"></script>
+<script src="main.js?v=20261107.3"></script>
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });

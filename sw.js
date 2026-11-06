@@ -1,10 +1,11 @@
-const CACHE_NAME = "color-match-v3";
+const CACHE_NAME = "color-match-v4";
 const CACHE_PREFIX = "color-match-";
 const ASSETS = [
     "./",
     "./index.html",
-    "./style.css?v=20261107.2",
-    "./main.js?v=20261107.2",
+    "./style.css?v=20261107.3",
+    "./color-science.js?v=20261107.1",
+    "./main.js?v=20261107.3",
     "./manifest.json",
     "./src/favicons/android-chrome-192x192.png",
     "./src/favicons/android-chrome-512x512.png",
