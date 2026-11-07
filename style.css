@@ -20,6 +20,12 @@ body {
     padding: 12px 16px max(20px, env(safe-area-inset-bottom));
 }
 
+.practice-main,
+.practice-sidebar {
+    display: grid;
+    align-content: start;
+}
+
 /* ヘッダー */
 .header {
     display: flex;
@@ -672,6 +678,87 @@ body[data-difficulty="advanced"] .value {
 .danger-btn {
     background: rgba(255,81,47,0.18);
     border: 1px solid rgba(255,81,47,0.4);
+}
+
+@media (min-width: 900px) {
+    .app {
+        max-width: 1180px;
+        padding: 20px 24px 32px;
+    }
+
+    .header h1 {
+        font-size: 28px;
+    }
+
+    .header p {
+        font-size: 13px;
+    }
+
+    .learning-toolbar {
+        margin-top: 14px;
+    }
+
+    .practice-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.8fr);
+        align-items: start;
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    .practice-main,
+    .practice-sidebar {
+        gap: 14px;
+    }
+
+    .practice-layout .card {
+        margin-top: 0;
+    }
+
+    .color-box {
+        height: 150px;
+    }
+
+    .controls-wrap {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr) 76px;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .controls {
+        height: 280px;
+    }
+
+    .batch-btn {
+        flex-direction: column;
+        min-width: 0;
+        padding: 10px 6px;
+        line-height: 1.25;
+    }
+
+    .batch-btn .ui-icon {
+        font-size: 22px;
+    }
+
+    .action-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .secondary-actions {
+        margin-top: 0;
+    }
+
+    .feedback h2 {
+        font-size: 24px;
+    }
+
+    .delta-e {
+        font-size: 16px;
+    }
 }
 
 @media (max-height: 680px) {

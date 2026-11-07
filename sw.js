@@ -1,9 +1,9 @@
-const CACHE_NAME = "color-match-v6";
+const CACHE_NAME = "color-match-v7";
 const CACHE_PREFIX = "color-match-";
 const ASSETS = [
     "./",
     "./index.html",
-    "./style.css?v=20261107.5",
+    "./style.css?v=20261107.6",
     "./color-science.js?v=20261107.1",
     "./practice-records.js?v=20261107.1",
     "./main.js?v=20261107.5",
