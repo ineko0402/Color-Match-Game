@@ -18,7 +18,7 @@
 <link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261107.5">
+<link rel="stylesheet" href="style.css?v=20261107.6">
 <title>Color Match</title>
 </head>
 
@@ -43,97 +43,103 @@
     <div class="practice-count">練習 <strong id="practice-count">0</strong>色</div>
 </div>
 
-<div class="card colors">
-    <div class="color-preview">
-        <div id="target" class="color-box" role="img" aria-label="目標の色"></div>
-        <span>TARGET</span>
-    </div>
-    <div class="color-preview">
-        <div id="resultColor" class="color-box" role="img" aria-label="現在の色"></div>
-        <span>YOU</span>
-    </div>
-</div>
-
-<div class="card controls-wrap">
-    <!-- 一括増加 -->
-    <button id="batchUp" class="batch-btn up">
-        <span class="ui-icon" aria-hidden="true">＋</span>
-        ALL +10
-    </button>
-
-    <div class="controls">
-        <div class="zone r" data-color="r" role="slider" tabindex="0" aria-label="赤" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
-            <div class="fill" id="rFill"></div>
-            <div class="label">
-                <span class="key-hint">A / Z</span>
-                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
-                <div class="value" id="rVal"></div>
+<main class="practice-layout">
+    <div class="practice-main">
+        <div class="card colors">
+            <div class="color-preview">
+                <div id="target" class="color-box" role="img" aria-label="目標の色"></div>
+                <span>TARGET</span>
+            </div>
+            <div class="color-preview">
+                <div id="resultColor" class="color-box" role="img" aria-label="現在の色"></div>
+                <span>YOU</span>
             </div>
         </div>
 
-        <div class="zone g" data-color="g" role="slider" tabindex="0" aria-label="緑" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
-            <div class="fill" id="gFill"></div>
-            <div class="label">
-                <span class="key-hint">S / X</span>
-                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
-                <div class="value" id="gVal"></div>
+        <div class="card controls-wrap">
+            <!-- 一括増加 -->
+            <button id="batchUp" class="batch-btn up">
+                <span class="ui-icon" aria-hidden="true">＋</span>
+                ALL +10
+            </button>
+
+            <div class="controls">
+                <div class="zone r" data-color="r" role="slider" tabindex="0" aria-label="赤" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
+                    <div class="fill" id="rFill"></div>
+                    <div class="label">
+                        <span class="key-hint">A / Z</span>
+                        <span class="ui-icon channel-dot" aria-hidden="true">●</span>
+                        <div class="value" id="rVal"></div>
+                    </div>
+                </div>
+
+                <div class="zone g" data-color="g" role="slider" tabindex="0" aria-label="緑" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
+                    <div class="fill" id="gFill"></div>
+                    <div class="label">
+                        <span class="key-hint">S / X</span>
+                        <span class="ui-icon channel-dot" aria-hidden="true">●</span>
+                        <div class="value" id="gVal"></div>
+                    </div>
+                </div>
+
+                <div class="zone b" data-color="b" role="slider" tabindex="0" aria-label="青" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
+                    <div class="fill" id="bFill"></div>
+                    <div class="label">
+                        <span class="key-hint">D / C</span>
+                        <span class="ui-icon channel-dot" aria-hidden="true">●</span>
+                        <div class="value" id="bVal"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 一括減少 -->
+            <button id="batchDown" class="batch-btn down">
+                <span class="ui-icon" aria-hidden="true">−</span>
+                ALL -10
+            </button>
+        </div>
+
+        <div class="card action-card">
+            <button id="check">
+                <span class="ui-icon" aria-hidden="true">⚡</span>
+                照合する
+                <span class="key-hint-inline">Space</span>
+            </button>
+            <div class="secondary-actions">
+                <button id="reset" class="secondary-btn">RGBをリセット</button>
+                <button id="reveal" class="secondary-btn">振り返る</button>
             </div>
         </div>
+    </div>
 
-        <div class="zone b" data-color="b" role="slider" tabindex="0" aria-label="青" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
-            <div class="fill" id="bFill"></div>
-            <div class="label">
-                <span class="key-hint">D / C</span>
-                <span class="ui-icon channel-dot" aria-hidden="true">●</span>
-                <div class="value" id="bVal"></div>
+    <aside class="practice-sidebar" aria-label="照合結果と練習記録">
+        <section id="feedback" class="card feedback hidden" aria-live="polite">
+            <p class="eyebrow">CHECK RESULT</p>
+            <h2 id="closeness">照合結果</h2>
+            <p id="delta-e" class="delta-e"></p>
+            <p id="brightness" class="brightness"></p>
+            <p id="feedback-note" class="feedback-note">ヒントを参考に調整して、もう一度照合してみよう。</p>
+            <div class="channel-hints">
+                <div class="channel-hint r-hint"><strong>R</strong><span id="rHint"></span></div>
+                <div class="channel-hint g-hint"><strong>G</strong><span id="gHint"></span></div>
+                <div class="channel-hint b-hint"><strong>B</strong><span id="bHint"></span></div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- 一括減少 -->
-    <button id="batchDown" class="batch-btn down">
-        <span class="ui-icon" aria-hidden="true">−</span>
-        ALL -10
-    </button>
-</div>
-
-<div class="card">
-    <button id="check">
-        <span class="ui-icon" aria-hidden="true">⚡</span>
-        照合する
-        <span class="key-hint-inline">Space</span>
-    </button>
-    <div class="secondary-actions">
-        <button id="reset" class="secondary-btn">RGBをリセット</button>
-        <button id="reveal" class="secondary-btn">振り返る</button>
-    </div>
-</div>
-
-<section id="feedback" class="card feedback hidden" aria-live="polite">
-    <p class="eyebrow">CHECK RESULT</p>
-    <h2 id="closeness">照合結果</h2>
-    <p id="delta-e" class="delta-e"></p>
-    <p id="brightness" class="brightness"></p>
-    <p id="feedback-note" class="feedback-note">ヒントを参考に調整して、もう一度照合してみよう。</p>
-    <div class="channel-hints">
-        <div class="channel-hint r-hint"><strong>R</strong><span id="rHint"></span></div>
-        <div class="channel-hint g-hint"><strong>G</strong><span id="gHint"></span></div>
-        <div class="channel-hint b-hint"><strong>B</strong><span id="bHint"></span></div>
-    </div>
-</section>
-
-<section class="card history-card" aria-labelledby="history-title">
-    <div class="section-heading">
-        <div>
-            <p class="eyebrow">LEARNING LOG</p>
-            <h2 id="history-title">最近の記録</h2>
-        </div>
-        <span id="average-improvement">平均改善 0.0</span>
-    </div>
-    <ol id="history-list" class="history-list">
-        <li class="empty-history">まだ記録がありません</li>
-    </ol>
-</section>
+        <section class="card history-card" aria-labelledby="history-title">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">LEARNING LOG</p>
+                    <h2 id="history-title">最近の記録</h2>
+                </div>
+                <span id="average-improvement">平均改善 0.0</span>
+            </div>
+            <ol id="history-list" class="history-list">
+                <li class="empty-history">まだ記録がありません</li>
+            </ol>
+        </section>
+    </aside>
+</main>
 
 </div>
 
