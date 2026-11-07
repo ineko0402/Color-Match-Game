@@ -285,46 +285,59 @@ function input(){
     document.querySelectorAll(".zone").forEach(z => {
         let start = 0;
         let moved = false;
+        let activePointer = null;
 
-        z.addEventListener("touchstart", e => {
-            e.preventDefault();
-            start = e.touches[0].clientY;
+        z.addEventListener("pointerdown", e => {
+            if(e.button !== 0) return;
+            activePointer = e.pointerId;
+            start = e.clientY;
             moved = false;
-        }, { passive: false });
+            z.setPointerCapture(e.pointerId);
+        });
 
-        z.addEventListener("touchmove", e => {
-            e.preventDefault();
-            const y = e.touches[0].clientY;
-            const amount = Math.floor((start - y) / 8);
+        z.addEventListener("pointermove", e => {
+            if(e.pointerId !== activePointer) return;
+            const amount = Math.trunc((start - e.clientY) / 8);
 
             if(amount !== 0){
                 change(z.dataset.color, amount);
-                start = y;
+                start = e.clientY;
                 moved = true;
             }
+        });
+
+        z.addEventListener("pointerup", e => {
+            if(e.pointerId !== activePointer) return;
+            activePointer = null;
+            z.releasePointerCapture(e.pointerId);
+
+            if(!moved){
+                const rect = z.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                change(z.dataset.color, y < rect.height / 2 ? 1 : -1);
+            }
+        });
+
+        z.addEventListener("pointercancel", e => {
+            if(e.pointerId === activePointer) activePointer = null;
+        });
+
+        z.addEventListener("wheel", e => {
+            e.preventDefault();
+            if(e.deltaY === 0) return;
+            const step = e.shiftKey ? 10 : 1;
+            change(z.dataset.color, e.deltaY < 0 ? step : -step);
         }, { passive: false });
 
-        z.addEventListener("touchend", e => {
-            if(moved) return;
-            const rect = z.getBoundingClientRect();
-            const y = e.changedTouches[0].clientY - rect.top;
-            change(z.dataset.color, y < rect.height / 2 ? 1 : -1);
-        });
-
-        z.addEventListener("click", e => {
-            const rect = z.getBoundingClientRect();
-            const y = e.clientY - rect.top;
-            change(z.dataset.color, y < rect.height / 2 ? 1 : -1);
-        });
-
         z.addEventListener("keydown", e => {
+            const step = e.shiftKey ? 10 : 1;
             if(e.code === "ArrowUp" || e.code === "ArrowRight"){
                 e.preventDefault();
-                change(z.dataset.color, 1);
+                change(z.dataset.color, step);
             }
             if(e.code === "ArrowDown" || e.code === "ArrowLeft"){
                 e.preventDefault();
-                change(z.dataset.color, -1);
+                change(z.dataset.color, -step);
             }
         });
     });

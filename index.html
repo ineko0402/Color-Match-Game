@@ -18,7 +18,7 @@
 <link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261107.6">
+<link rel="stylesheet" href="style.css?v=20261107.7">
 <title>Color Match</title>
 </head>
 
@@ -67,7 +67,8 @@
                 <div class="zone r" data-color="r" role="slider" tabindex="0" aria-label="赤" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
                     <div class="fill" id="rFill"></div>
                     <div class="label">
-                        <span class="key-hint">A / Z</span>
+                        <span class="key-hint key-hint-mobile">A / Z</span>
+                        <span class="key-hint key-hint-desktop">A / Z・↑↓・ホイール</span>
                         <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                         <div class="value" id="rVal"></div>
                     </div>
@@ -76,7 +77,8 @@
                 <div class="zone g" data-color="g" role="slider" tabindex="0" aria-label="緑" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
                     <div class="fill" id="gFill"></div>
                     <div class="label">
-                        <span class="key-hint">S / X</span>
+                        <span class="key-hint key-hint-mobile">S / X</span>
+                        <span class="key-hint key-hint-desktop">S / X・↑↓・ホイール</span>
                         <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                         <div class="value" id="gVal"></div>
                     </div>
@@ -85,7 +87,8 @@
                 <div class="zone b" data-color="b" role="slider" tabindex="0" aria-label="青" aria-valuemin="0" aria-valuemax="255" aria-valuenow="0">
                     <div class="fill" id="bFill"></div>
                     <div class="label">
-                        <span class="key-hint">D / C</span>
+                        <span class="key-hint key-hint-mobile">D / C</span>
+                        <span class="key-hint key-hint-desktop">D / C・↑↓・ホイール</span>
                         <span class="ui-icon channel-dot" aria-hidden="true">●</span>
                         <div class="value" id="bVal"></div>
                     </div>
@@ -186,6 +189,14 @@
             <li>同じ問題を調整し直し、近づき方を観察します。</li>
             <li>好きなタイミングで「振り返る」を押し、最初からの改善を確認します。</li>
         </ol>
+        <h3 class="control-guide-title">色の調整方法</h3>
+        <ul class="control-guide">
+            <li>バーの上半分／下半分を押すと ±1</li>
+            <li>バーを上下にドラッグすると連続調整</li>
+            <li>バー上のホイール／タッチパッドで ±1、Shift併用で ±10</li>
+            <li>フォーカス中の矢印キーで ±1、Shift併用で ±10</li>
+            <li>A/Z・S/X・D/Cキーで各色を ±5</li>
+        </ul>
         <dl class="difficulty-guide">
             <div><dt>初級</dt><dd>明るさとRGBの調整量を表示</dd></div>
             <div><dt>中級</dt><dd>RGBの方向だけを表示</dd></div>
@@ -200,7 +211,7 @@
 
 <script src="color-science.js?v=20261107.1"></script>
 <script src="practice-records.js?v=20261107.1"></script>
-<script src="main.js?v=20261107.5"></script>
+<script src="main.js?v=20261107.6"></script>
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
