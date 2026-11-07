@@ -18,7 +18,7 @@
 <link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261107.4">
+<link rel="stylesheet" href="style.css?v=20261107.5">
 <title>Color Match</title>
 </head>
 
@@ -40,7 +40,7 @@
         <option value="intermediate">中級</option>
         <option value="advanced">上級</option>
     </select>
-    <div class="streak">連続クリア <strong id="streak">0</strong></div>
+    <div class="practice-count">練習 <strong id="practice-count">0</strong>色</div>
 </div>
 
 <div class="card colors">
@@ -105,7 +105,7 @@
     </button>
     <div class="secondary-actions">
         <button id="reset" class="secondary-btn">RGBをリセット</button>
-        <button id="reveal" class="secondary-btn">答えを見る</button>
+        <button id="reveal" class="secondary-btn">振り返る</button>
     </div>
 </div>
 
@@ -128,7 +128,7 @@
             <p class="eyebrow">LEARNING LOG</p>
             <h2 id="history-title">最近の記録</h2>
         </div>
-        <span id="completed-count">0クリア</span>
+        <span id="average-improvement">平均改善 0.0</span>
     </div>
     <ol id="history-list" class="history-list">
         <li class="empty-history">まだ記録がありません</li>
@@ -138,12 +138,17 @@
 </div>
 
 <!-- 答え合わせオーバーレイ -->
-<div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="答え合わせ">
+<div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-label="練習の振り返り">
     <div class="result-card">
         <p class="eyebrow">ROUND REVIEW</p>
-        <h2>答え合わせ</h2>
+        <h2>練習の振り返り</h2>
         <p class="result-score">照合回数: <span id="result-checks">0</span>回</p>
-        <p class="result-diff">最終色差 ΔE00: <span id="result-delta-e">0</span></p>
+        <div class="result-metrics">
+            <p>最初 <strong id="result-first-delta-e">0</strong></p>
+            <p>最良 <strong id="result-best-delta-e">0</strong></p>
+            <p>最終 <strong id="result-final-delta-e">0</strong></p>
+            <p>改善 <strong id="result-improvement">0</strong></p>
+        </div>
         <div class="result-colors">
             <div class="result-color-wrap">
                 <div class="result-color-box" id="result-target"></div>
@@ -172,8 +177,8 @@
         <ol>
             <li>目標色を見て、R・G・Bを感覚で調整します。</li>
             <li>「照合する」で、知覚的な近さとヒントを確認します。</li>
-            <li>同じ問題を調整し直し、ΔE00が3以下ならクリアです。</li>
-            <li>「答えを見る」でRGB値を振り返ります。</li>
+            <li>同じ問題を調整し直し、近づき方を観察します。</li>
+            <li>好きなタイミングで「振り返る」を押し、最初からの改善を確認します。</li>
         </ol>
         <dl class="difficulty-guide">
             <div><dt>初級</dt><dd>明るさとRGBの調整量を表示</dd></div>
@@ -188,7 +193,8 @@
 </dialog>
 
 <script src="color-science.js?v=20261107.1"></script>
-<script src="main.js?v=20261107.4"></script>
+<script src="practice-records.js?v=20261107.1"></script>
+<script src="main.js?v=20261107.5"></script>
 <script>
 if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });

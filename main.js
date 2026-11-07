@@ -1,8 +1,8 @@
 "use strict";
 
 const SETTINGS_KEY = "color-match-settings-v1";
-const PROGRESS_KEY = "color-match-progress-v1";
-const DIFFICULTIES = ["beginner", "intermediate", "advanced"];
+const PROGRESS_KEY = "color-match-practice-v2";
+const DIFFICULTIES = PracticeRecords.DIFFICULTIES;
 
 const state = {
     r: 0,
@@ -10,23 +10,16 @@ const state = {
     b: 0,
     target: null,
     checks: 0,
+    firstDeltaE: null,
+    bestDeltaE: null,
+    firstColor: null,
+    bestColor: null,
     feedbackShown: false,
     resultOpen: false,
-    cleared: false,
     answerRecorded: false,
     difficulty: "beginner",
     progress: null
 };
-
-function emptyProgress(){
-    return {
-        completed: 0,
-        rounds: 0,
-        streak: 0,
-        bestDeltaE: null,
-        history: []
-    };
-}
 
 function readJson(key){
     try {
@@ -44,36 +37,7 @@ function loadSettings(){
 }
 
 function loadProgress(){
-    const saved = readJson(PROGRESS_KEY);
-    const progress = emptyProgress();
-
-    if(!saved || typeof saved !== "object") return progress;
-
-    progress.completed = Number.isInteger(saved.completed) && saved.completed >= 0 ? saved.completed : 0;
-    progress.rounds = Number.isInteger(saved.rounds) && saved.rounds >= 0 ? saved.rounds : 0;
-    progress.streak = Number.isInteger(saved.streak) && saved.streak >= 0 ? saved.streak : 0;
-    progress.bestDeltaE = Number.isFinite(saved.bestDeltaE) && saved.bestDeltaE >= 0
-        ? saved.bestDeltaE
-        : null;
-    progress.history = Array.isArray(saved.history)
-        ? saved.history
-            .filter(item =>
-                item &&
-                Number.isFinite(item.deltaE) &&
-                Number.isInteger(item.checks) &&
-                typeof item.cleared === "boolean" &&
-                DIFFICULTIES.includes(item.difficulty)
-            )
-            .slice(0, 5)
-            .map(item => ({
-                deltaE: Math.max(0, item.deltaE),
-                checks: Math.max(0, item.checks),
-                cleared: item.cleared,
-                difficulty: item.difficulty
-            }))
-        : [];
-
-    return progress;
+    return PracticeRecords.sanitizeProgress(readJson(PROGRESS_KEY));
 }
 
 function persistProgress(){
@@ -93,8 +57,11 @@ function difficultyLabel(value){
 }
 
 function renderProgress(){
-    document.getElementById("streak").textContent = state.progress.streak;
-    document.getElementById("completed-count").textContent = `${state.progress.completed}クリア`;
+    document.getElementById("practice-count").textContent = state.progress.practiceCount;
+    const averageImprovement = state.progress.practiceCount === 0
+        ? 0
+        : state.progress.totalImprovement / state.progress.practiceCount;
+    document.getElementById("average-improvement").textContent = `平均改善 ${averageImprovement.toFixed(1)}`;
 
     const list = document.getElementById("history-list");
     list.replaceChildren();
@@ -107,13 +74,14 @@ function renderProgress(){
         return;
     }
 
-    state.progress.history.forEach(item => {
+    state.progress.history.slice(0, 5).forEach(item => {
         const row = document.createElement("li");
         const result = document.createElement("strong");
         const detail = document.createElement("span");
 
-        result.textContent = item.cleared ? "クリア" : "練習終了";
-        detail.textContent = `${difficultyLabel(item.difficulty)}・ΔE00 ${item.deltaE.toFixed(1)}・照合${item.checks}回`;
+        const improvement = Math.max(0, item.firstDeltaE - item.bestDeltaE);
+        result.textContent = `改善 ${improvement.toFixed(1)}`;
+        detail.textContent = `${difficultyLabel(item.difficulty)}・${item.firstDeltaE.toFixed(1)} → ${item.bestDeltaE.toFixed(1)}・照合${item.checks}回`;
         row.append(result, detail);
         list.append(row);
     });
@@ -215,6 +183,14 @@ function check(){
     const comparison = ColorScience.compareRgb(state.target, cur);
 
     state.checks += 1;
+    if(state.firstDeltaE === null){
+        state.firstDeltaE = comparison.deltaE;
+        state.firstColor = { ...cur };
+    }
+    if(state.bestDeltaE === null || comparison.deltaE < state.bestDeltaE){
+        state.bestDeltaE = comparison.deltaE;
+        state.bestColor = { ...cur };
+    }
     state.feedbackShown = true;
 
     document.getElementById("closeness").textContent = closenessLabel(comparison.deltaE);
@@ -224,16 +200,8 @@ function check(){
     document.getElementById("gHint").textContent = channelHint(state.target.g, state.g);
     document.getElementById("bHint").textContent = channelHint(state.target.b, state.b);
     document.getElementById("feedback-note").textContent = comparison.deltaE <= 3
-        ? "クリア！答え合わせでRGB値を振り返ってみよう。"
+        ? "かなり近づきました。さらに調整しても、ここで振り返っても構いません。"
         : "ヒントを参考に調整して、もう一度照合してみよう。";
-
-    if(comparison.deltaE <= 3 && !state.cleared){
-        state.cleared = true;
-        state.progress.completed += 1;
-        state.progress.streak += 1;
-        persistProgress();
-        renderProgress();
-    }
 
     const feedback = document.getElementById("feedback");
     feedback.classList.remove("hidden", "stale");
@@ -251,27 +219,37 @@ function resetMix(){
 function showAnswer(){
     const cur = currentColor();
     const comparison = ColorScience.compareRgb(state.target, cur);
+    const firstDeltaE = state.firstDeltaE ?? comparison.deltaE;
+    const bestDeltaE = Math.min(state.bestDeltaE ?? comparison.deltaE, comparison.deltaE);
+    const firstPlayer = state.firstColor ?? cur;
+    const bestPlayer = comparison.deltaE <= (state.bestDeltaE ?? comparison.deltaE)
+        ? cur
+        : state.bestColor;
+    const improvement = Math.max(0, firstDeltaE - bestDeltaE);
 
     document.getElementById("result-checks").textContent = state.checks;
-    document.getElementById("result-delta-e").textContent = comparison.deltaE.toFixed(1);
+    document.getElementById("result-first-delta-e").textContent = firstDeltaE.toFixed(1);
+    document.getElementById("result-best-delta-e").textContent = bestDeltaE.toFixed(1);
+    document.getElementById("result-final-delta-e").textContent = comparison.deltaE.toFixed(1);
+    document.getElementById("result-improvement").textContent = improvement.toFixed(1);
     document.getElementById("result-target").style.background = css(state.target);
     document.getElementById("result-player").style.background = css(cur);
     document.getElementById("target-rgb").textContent = `RGB(${state.target.r}, ${state.target.g}, ${state.target.b})`;
     document.getElementById("player-rgb").textContent = `RGB(${cur.r}, ${cur.g}, ${cur.b})`;
 
     if(!state.answerRecorded){
-        state.progress.rounds += 1;
-        if(!state.cleared) state.progress.streak = 0;
-        state.progress.bestDeltaE = state.progress.bestDeltaE === null
-            ? comparison.deltaE
-            : Math.min(state.progress.bestDeltaE, comparison.deltaE);
-        state.progress.history.unshift({
-            deltaE: comparison.deltaE,
+        state.progress = PracticeRecords.addRecord(state.progress, {
+            firstDeltaE,
+            bestDeltaE,
+            finalDeltaE: comparison.deltaE,
             checks: state.checks,
-            cleared: state.cleared,
-            difficulty: state.difficulty
+            difficulty: state.difficulty,
+            target: { ...state.target },
+            firstPlayer: { ...firstPlayer },
+            bestPlayer: { ...bestPlayer },
+            finalPlayer: { ...cur },
+            recordedAt: Date.now()
         });
-        state.progress.history = state.progress.history.slice(0, 5);
         state.answerRecorded = true;
         persistProgress();
         renderProgress();
@@ -290,9 +268,12 @@ function nextRound(){
     state.g = 0;
     state.b = 0;
     state.checks = 0;
+    state.firstDeltaE = null;
+    state.bestDeltaE = null;
+    state.firstColor = null;
+    state.bestColor = null;
     state.feedbackShown = false;
     state.resultOpen = false;
-    state.cleared = false;
     state.answerRecorded = false;
     state.target = generateColor();
 
@@ -409,8 +390,8 @@ helpDialog.addEventListener("click", e => {
 });
 
 document.getElementById("reset-progress").addEventListener("click", () => {
-    if(!window.confirm("連続クリアと最近の記録をすべて消しますか？")) return;
-    state.progress = emptyProgress();
+    if(!window.confirm("練習回数と最近の記録をすべて消しますか？")) return;
+    state.progress = PracticeRecords.emptyProgress();
     persistProgress();
     renderProgress();
     helpDialog.close();
